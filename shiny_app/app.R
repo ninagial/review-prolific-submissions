@@ -1,7 +1,7 @@
 
 library(shiny)
 library(devtools)
-load_all("~/prolific")
+load_all("../prolific")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
