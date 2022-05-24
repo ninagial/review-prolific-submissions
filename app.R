@@ -16,7 +16,7 @@ ui <- fluidPage(
         
         # Input: Select a file ----
         fileInput("file1", "Choose CSV File",
-                  multiple = TRUE,
+                  multiple = FALSE,
                   accept = c("text/csv",
                              "text/comma-separated-values,text/plain",
                              ".csv")),
@@ -24,40 +24,41 @@ ui <- fluidPage(
         # Horizontal line ----
         tags$hr(),
         
-        # Input: Checkbox if file has header ----
-        checkboxInput("header", "Header", TRUE),
-        
-        # Input: Select separator ----
-        radioButtons("sep", "Separator",
-                     choices = c(Comma = ",",
-                                 Semicolon = ";",
-                                 Tab = "\t"),
-                     selected = ","),
-        
-        # Input: Select quotes ----
-        radioButtons("quote", "Quote",
-                     choices = c(None = "",
-                                 "Double Quote" = '"',
-                                 "Single Quote" = "'"),
-                     selected = '"'),
-        
-        # Horizontal line ----
-        tags$hr(),
-        
+               
         # Input: Select number of rows to display ----
         radioButtons("disp", "Display",
                      choices = c(Head = "head",
                                  All = "all"),
-                     selected = "head")
+                     selected = "head"),
         
-      ),
+      checkboxGroupInput("include_status", "Submission Status (To Include):",
+			     c(  "APPROVED" = "APPROVED",
+			         "REJECTED" = "REJECTED",
+			         "AWAITING REVIEW" = "AWAITING REVIEW",
+				 "TIMED-OUT" = "TIMED-OUT",
+				 "RETURNED" = "RETURNED")),
+      textOutput("statuses"), 
+
+      tags$hr(),
+
+      sliderInput(inputId="time_quantile", 
+		  label="Quantile of time taken, to cut off:", 
+		  min=70, 
+		  max=100,
+                  ticks=FALSE,
+                  value=90 )
+      ), # end sidebar panel
       
+		    
       # Main panel for displaying outputs ----
       mainPanel(
         
         # Output: Data file ----
-        tableOutput("contents")
-        
+	tags$h2("Original Data"),
+        tableOutput("contents"),
+
+	tags$h2("Participants that took too much time"),
+	tableOutput("time_taken")
       )
       
     )
@@ -74,20 +75,21 @@ server <- function(input, output) {
     
     req(input$file1)
     
-    df <- read.csv(input$file1$datapath,
-                   header = input$header,
-                   sep = input$sep,
-                   quote = input$quote)
-    
+    prolific_export <- read_prolific_export(input$file1$datapath)
+    include_logical <- prolific_export$status %in% input$include_status
+    prolific_export <- prolific_export[include_logical, ]
+
     if(input$disp == "head") {
-      return(head(df))
+      return(head(prolific_export))
     }
     else {
-      return(df)
+      return(prolific_export)
     }
     
   })
-  
+
+  output$statuses <- renderText({ paste(collapse=", ", input$include_status) })
+
 }
 # Run the app ----
 shinyApp(ui, server)
