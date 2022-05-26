@@ -2,6 +2,19 @@
 
 Howdy, I wrote this app for processing Prolific outputs.
 
+# Check out the app
+
+[https://ninagial.shinyapps.io/prolificapp2/](https://ninagial.shinyapps.io/prolificapp2/)
+
+# Instructions
+
+- Upload the exported demographics from Prolific into the first tab.
+- Upload your survey data file in the second tab.
+- Go through all tabs to make sure everything is as expected.
+- Report any issues at the Issue Tracker of this repo.
+
+# Motivation
+
 Prolific Academic is a participant recruitment service for human subjects research, for instance psychology and behavioral economics experiments, marketing research, or any other type of research microjob.
 It is a high quality service, and pushes towards good remuneration for participants.
 
