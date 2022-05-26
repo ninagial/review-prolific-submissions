@@ -95,7 +95,8 @@ ui <- fluidPage(
       mainPanel(
         
 	  tabsetPanel(type="tabs",
-		       tabPanel("Results", tableOutput("process")),
+		       tabPanel("Results", tableOutput("process_table")),
+		       tabPanel("To Bulk Approve", textOutput("prolific_ids")),
 		       tabPanel("Prolific", tableOutput("contents")),
 		       tabPanel("Survey Data", {
 			    tableOutput("contents2")
@@ -149,7 +150,7 @@ server <- function(input, output) {
 	  }
   })
 
-  output$process <- renderTable({
+  process <- reactive({
 
         qual <- qualtrics()$data
 	prol <- prolific()
@@ -167,10 +168,20 @@ server <- function(input, output) {
 	data_all[, 'skipped_sections'] <- section_skippers$excl_logical
 	data_all[, 'no_code'] <- data_all$entered_code == 'NOCODE'
 	# filter(data_all,  too_slow | skipped_sections)[, c(input$prolific_id_field,'status', 'too_slow', 'skipped_sections')]
-	data_all[, c(input$prolific_id_field,'status', 'too_slow', 'skipped_sections', 'no_code')]
+	# data_all[, c(input$prolific_id_field,'status', 'too_slow', 'skipped_sections', 'no_code')]
+	data_all
 
   })
 
+  output$process_table <- renderTable({
+	  process()[, c(input$prolific_id_field,'status', 'too_slow', 'skipped_sections', 'no_code')]
+
+  })
+
+  output$prolific_ids <- renderText({
+	  the_data <- process()
+	  paste(collapse=', ', the_data[with(the_data, !(no_code | too_slow | skipped_sections)), input$prolific_id_field])
+  })
 
   output$contents2 <- renderTable({
 	  df <- qualtrics()
@@ -185,6 +196,7 @@ server <- function(input, output) {
 		  matrix(NA, 2, 2)
 	  }
   })
+
 
   output$statuses <- renderText({ paste(collapse=", ", input$include_status) })
 
