@@ -14,76 +14,82 @@ ui <- fluidPage(
       
       # Sidebar panel for inputs ----
       sidebarPanel(
-        
-        # Input: Select a file ----
-        fileInput("file1", "Choose CSV File (ie Prolific Export)",
-                  multiple = FALSE,
-                  accept = c("text/csv",
-                             "text/comma-separated-values,text/plain",
-                             ".csv")),
-        tags$hr(),
-        
-        fileInput("file2", "Choose Survey Data File",
-                  multiple = FALSE,
-                  accept = c("text/csv",
-                             "text/comma-separated-values,text/plain",
-                             ".csv")),
-        # Horizontal line ----
-        tags$hr(),
+         tabsetPanel(type='tabs', 
+		
+           tabPanel("Prolific File", 
+		# Input: Select a file ----
+		fileInput("file1", "Choose CSV File (ie Prolific Export)",
+			  multiple = FALSE,
+			  accept = c("text/csv",
+				     "text/comma-separated-values,text/plain",
+				     ".csv")),
+		tags$hr()
+		
+		),
+		
+	  tabPanel("Survey Data", 
+		fileInput("file2", "Choose Survey Data File",
+			  multiple = FALSE,
+			  accept = c("text/csv",
+				     "text/comma-separated-values,text/plain",
+				     ".csv")),
+	      textInput("prolific_id_field", "Column that contains Prolific ID in Survey Data", value="Prolific.ID"),
 
-	radioButtons('qualtrics', "Is this a Qualtrics export?", 
-		     c('Yes','No'), selected='Yes'),
-      tags$hr(),
+		radioButtons('qualtrics', "Is this a Qualtrics export?", 
+			     c('Yes','No'), selected='Yes'),
+	      tags$hr(),
 
-      # Input: Checkbox if file has header ----
-      checkboxInput("header", "Header", TRUE),
+	      # Input: Checkbox if file has header ----
+	      checkboxInput("header", "Header", TRUE),
 
-      # Input: Select separator ----
-      radioButtons("sep", "Separator",
-                   choices = c(Comma = ",",
-                               Semicolon = ";",
-                               Tab = "\t"),
-                   selected = ","),
+	      # Input: Select separator ----
+	      radioButtons("sep", "Separator",
+			   choices = c(Comma = ",",
+				       Semicolon = ";",
+				       Tab = "\t"),
+			   selected = ","),
 
-      # Input: Select quotes ----
-      radioButtons("quote", "Quote",
-                   choices = c(None = "",
-                               "Double Quote" = '"',
-                               "Single Quote" = "'"),
-                   selected = '"'),
+	      # Input: Select quotes ----
+	      radioButtons("quote", "Quote",
+			   choices = c(None = "",
+				       "Double Quote" = '"',
+				       "Single Quote" = "'"),
+			   selected = '"'),
 
-      # Horizontal line ----
-      tags$hr(),
+	      # Horizontal line ----
+	      tags$hr(),
+	      
+		# Input: Select number of rows to display ----
+		radioButtons("disp", "Display",
+			     choices = c(Head = "head",
+					 All = "all"),
+			     selected = "head")
+		
 
-        tags$hr(),
-               
-        # Input: Select number of rows to display ----
-        radioButtons("disp", "Display",
-                     choices = c(Head = "head",
-                                 All = "all"),
-                     selected = "head"),
-        
-      checkboxGroupInput("include_status", "Submission Status (To Include):",
-			     c(  "APPROVED" = "APPROVED",
-			         "REJECTED" = "REJECTED",
-			         "AWAITING REVIEW" = "AWAITING REVIEW",
-				 "TIMED-OUT" = "TIMED-OUT",
-				 "RETURNED" = "RETURNED"),
-			 selected="AWAITING REVIEW"),
-      textOutput("statuses"), 
+	      
+	      ), # end survey data panel
 
-      tags$hr(),
+	  tabPanel("Criteria",
+	      checkboxGroupInput("include_status", "Submission Status (To Include):",
+				     c(  "APPROVED" = "APPROVED",
+					 "REJECTED" = "REJECTED",
+					 "AWAITING REVIEW" = "AWAITING REVIEW",
+					 "TIMED-OUT" = "TIMED-OUT",
+					 "RETURNED" = "RETURNED"),
+				 selected="AWAITING REVIEW"),
+	      textOutput("statuses"), 
 
-      sliderInput(inputId="time_quantile", 
-		  label="Quantile of time taken, to cut off:", 
-		  min=50, 
-		  max=100,
-                  ticks=FALSE,
-                  value=90 ), 
-      textInput("sections", "Mandatory Survey Sections (RegEx)", value="^Q1_|^Q6_|^Q10_|^Q12_|^Q4_"), 
-      textInput("prolific_id_field", "Column that contains Prolific ID in Survey Data", value="Prolific.ID")
-      ) # end sidebar panel
-      ,
+	      textInput("sections", "Mandatory Survey Sections (RegEx)", value="^Q1_|^Q6_|^Q10_|^Q12_|^Q4_"), 
+	      sliderInput(inputId="time_quantile", 
+			  label="Quantile of time taken, to cut off:", 
+			  min=50, 
+			  max=100,
+			  ticks=FALSE,
+			  value=90 )
+		   ) 
+	       ) # end tabset panel
+	      ) # end sidebar panel
+	      ,
 		    
       # Main panel for displaying outputs ----
       mainPanel(
