@@ -33,6 +33,27 @@ ui <- fluidPage(
 
 	radioButtons('qualtrics', "Is this a Qualtrics export?", 
 		     c('Yes','No'), selected='Yes'),
+      tags$hr(),
+
+      # Input: Checkbox if file has header ----
+      checkboxInput("header", "Header", TRUE),
+
+      # Input: Select separator ----
+      radioButtons("sep", "Separator",
+                   choices = c(Comma = ",",
+                               Semicolon = ";",
+                               Tab = "\t"),
+                   selected = ","),
+
+      # Input: Select quotes ----
+      radioButtons("quote", "Quote",
+                   choices = c(None = "",
+                               "Double Quote" = '"',
+                               "Single Quote" = "'"),
+                   selected = '"'),
+
+      # Horizontal line ----
+      tags$hr(),
 
         tags$hr(),
                
@@ -83,7 +104,15 @@ ui <- fluidPage(
 server <- function(input, output) {
   qualtrics <- reactive({
 	  req(input$file2)
-	  qual <- read_qualtrics_file(input$file2$datapath)
+	  if(input$qualtrics=="Yes"){
+		  qual <- read_qualtrics_file(input$file2$datapath)
+	  } else {
+		  qual <- read.csv(input$file1$datapath,
+				   header = input$header,
+				   sep = input$sep,
+				   quote = input$quote)
+
+	  } 
 	  qual
 	  
   })
